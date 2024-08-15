@@ -2,13 +2,17 @@
 
 const fs = require('fs');
 const inquirer = require('inquirer');
+const inquirerSearchList = require('inquirer-search-list');
+
+// Register the plugin with inquirer
+inquirer.registerPrompt('search-list', inquirerSearchList);
 
 console.log('AWS Profile Switcher');
 
 const homeDir = process.env['HOME']
 const profileRegex = /\[profile .*]/g;
 const bracketsRemovalRegx = /(\[profile )|(\])/g;
-const defaultProfileChoice = 'default';
+const defaultProfileChoice = '';
 
 const promptProfileChoice = (data) => {
   const matches = data.match(profileRegex);
@@ -27,13 +31,15 @@ const promptProfileChoice = (data) => {
 
   profiles.push(defaultProfileChoice);
 
+  profiles.sort();
+
   const profileChoice = [
     {
-      type: 'list',
+      type: 'search-list',
       name: 'profile',
-      message: 'Choose a profile',
-      choices: profiles,
-      default: process.env.AWS_PROFILE || defaultProfileChoice
+      message: 'Start typing to filter profiles',
+      choices: profiles
+      //default: process.env.AWS_PROFILE || defaultProfileChoice
     }
   ];
 
