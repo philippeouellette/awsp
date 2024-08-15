@@ -1,4 +1,4 @@
-# AWSP - AWS Profile Switcher
+# AWSP-2.0 - AWS Profile Switcher
 
 Easily switch between AWS Profiles
 
@@ -19,7 +19,7 @@ https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html
 ## Setup
 
 ```sh
-npm install -g awsp
+npm install -g awsp-2.0
 ```
 
 Add the following to your `.bashrc` or `.zshrc` config
