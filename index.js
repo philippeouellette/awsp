@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+const { profile } = require('console');
 const fs = require('fs');
 const inquirer = require('inquirer');
 const inquirerSearchList = require('inquirer-search-list');
@@ -11,7 +12,9 @@ console.log('AWS Profile Switcher');
 
 const homeDir = process.env['HOME']
 const profileRegex = /\[profile .*]/g;
+const accountIDRegex = /sso_account_id \= .*/g; 
 const bracketsRemovalRegx = /(\[profile )|(\])/g;
+const accountIDSaninitizingRegx = /(sso_account_id \=)/g;
 const defaultProfileChoice = '';
 
 const promptProfileChoice = (data) => {
@@ -25,11 +28,25 @@ const promptProfileChoice = (data) => {
     return;
   }
 
-  const profiles = matches.map((match) => {
-    return match.replace(bracketsRemovalRegx, '');
+  const profiles = matches.map((match, index) => {
+    const sanitizedProfileName = match.replace(bracketsRemovalRegx, '');
+    const accountIDMatch = data.match(accountIDRegex);
+    let accountID = '';
+
+    if (accountIDMatch && accountIDMatch[index]) {
+        accountID = accountIDMatch[index].replace(accountIDSaninitizingRegx, '').trim();
+    }
+
+    return `${sanitizedProfileName} ([${accountID}])`;
+  });
+
+  const accountID = matches.map((match) => {
+    return match.replace(accountIDSaninitizingRegx, '');
   });
 
   profiles.push(defaultProfileChoice);
+
+  profiles.tostring += ' ' + accountID.tostring;
 
   profiles.sort();
 
@@ -38,8 +55,8 @@ const promptProfileChoice = (data) => {
       type: 'search-list',
       name: 'profile',
       message: 'Start typing to filter profiles',
-      choices: profiles
-      //default: process.env.AWS_PROFILE || defaultProfileChoice
+      choices: profiles,
+      default: process.env.AWS_PROFILE || defaultProfileChoice
     }
   ];
 
@@ -60,7 +77,7 @@ const readAwsProfiles = () => {
 
 const writeToConfig = (answers) => {
   const profileChoice =
-        answers.profile === defaultProfileChoice ? '' : answers.profile;
+        answers.profile === defaultProfileChoice ? '' : answers.profile.toString().split(" (")[0].trim();
 
   return new Promise((resolve, reject) => {
     fs.writeFile(`${homeDir}/.awsp`, profileChoice, { flag: 'w' }, function (err) {
