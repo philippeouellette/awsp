@@ -19,12 +19,12 @@ https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html
 ## Setup
 
 ```sh
-npm install -g awsp-2.0
+npm install -g .
 ```
 
 Add the following to your `.bashrc` or `.zshrc` config
 ```sh
-alias awsp="source _awsp"
+alias awsp="source awsp && aws sso login"
 ```
 
 ## Usage
